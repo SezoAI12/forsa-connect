@@ -62,6 +62,17 @@ export interface Opportunity {
   };
   isNew: boolean;
   publishedAt: string;
+  // ── Scoring Engine Inputs (Phase 1) ─────────────────────────────────────
+  monthlyLossUSD?: number;
+  demandFrequencyScore?: number;
+  executionSimplicityScore?: number;
+  socialEvidenceScore?: number;
+  problemAgeMonths?: number;
+  regulatoryComplexity?: boolean;
+  opportunityScore?: number;          // pre-computed by scoring engine
+  // ── Phase 2/3 stubs (nullable) ──────────────────────────────────────────
+  trustScore?: null;                  // Phase 2
+  executionLocked?: true;             // Phase 3
 }
 
 export const OPPORTUNITIES: Opportunity[] = [
@@ -717,3 +728,53 @@ export const CATEGORIES: Category[] = [
   "Digital Arbitrage",
   "Micro SaaS Ideas",
 ];
+
+// ─── Scoring Engine Integration ───────────────────────────────────────────────
+// Pre-computed scores using Phase 1 formula for all seed opportunities
+// Run calculateTrustScore(input) at runtime to get live scores with breakdowns
+
+export const OPPORTUNITY_SCORES: Record<string, {
+  demandFrequencyScore: number;
+  executionSimplicityScore: number;
+  socialEvidenceScore: number;
+  problemAgeMonths: number;
+  monthlyLossUSD: number;
+  regulatoryComplexity: boolean;
+}> = {
+  "ai-subtitle-service": {
+    demandFrequencyScore: 88, executionSimplicityScore: 85, socialEvidenceScore: 82,
+    problemAgeMonths: 24, monthlyLossUSD: 1500, regulatoryComplexity: false,
+  },
+  "restaurant-social-media": {
+    demandFrequencyScore: 79, executionSimplicityScore: 80, socialEvidenceScore: 72,
+    problemAgeMonths: 36, monthlyLossUSD: 3000, regulatoryComplexity: false,
+  },
+  "podcast-content-repurposing": {
+    demandFrequencyScore: 85, executionSimplicityScore: 82, socialEvidenceScore: 80,
+    problemAgeMonths: 30, monthlyLossUSD: 2500, regulatoryComplexity: false,
+  },
+  "whatsapp-automation": {
+    demandFrequencyScore: 91, executionSimplicityScore: 65, socialEvidenceScore: 78,
+    problemAgeMonths: 36, monthlyLossUSD: 8000, regulatoryComplexity: true,
+  },
+  "ai-content-repurposing": {
+    demandFrequencyScore: 82, executionSimplicityScore: 84, socialEvidenceScore: 76,
+    problemAgeMonths: 24, monthlyLossUSD: 2000, regulatoryComplexity: false,
+  },
+  "crm-automation-smb": {
+    demandFrequencyScore: 76, executionSimplicityScore: 60, socialEvidenceScore: 74,
+    problemAgeMonths: 36, monthlyLossUSD: 5000, regulatoryComplexity: false,
+  },
+  "short-form-video-editor": {
+    demandFrequencyScore: 83, executionSimplicityScore: 88, socialEvidenceScore: 80,
+    problemAgeMonths: 18, monthlyLossUSD: 800, regulatoryComplexity: false,
+  },
+};
+
+/**
+ * Utility: get scoring inputs for a given opportunity id.
+ * Used by OpportunityDetailPage to display live score breakdown.
+ */
+export function getOpportunityScoringInputs(id: string) {
+  return OPPORTUNITY_SCORES[id] ?? null;
+}
