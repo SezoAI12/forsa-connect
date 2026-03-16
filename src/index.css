@@ -143,3 +143,15 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary) / 0.5);
 }
+
+/* ── RTL support for Arabic (react-i18next direction) ─────────────────────── */
+[dir="rtl"] {
+  font-family: var(--font-arabic);
+}
+
+[dir="rtl"] .ms-auto { margin-inline-start: auto !important; }
+[dir="rtl"] .me-auto { margin-inline-end:   auto !important; }
+
+/* Hide scrollbar for category pills */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

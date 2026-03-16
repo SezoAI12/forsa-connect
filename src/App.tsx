@@ -4,41 +4,67 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/lib/auth";
+import { AuthProvider as SupabaseAuthProvider } from "@/hooks/useAuth";
 import AppShell from "@/components/AppShell";
+
+// ─── Pages ───────────────────────────────────────────────────────────────────
 import LandingPage from "@/pages/LandingPage";
 import AuthPage from "@/pages/AuthPage";
+import Login from "@/pages/Login";
+import Signup from "@/pages/Signup";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
 import OpportunitiesPage from "@/pages/OpportunitiesPage";
 import OpportunityDetailPage from "@/pages/OpportunityDetailPage";
 import ExecutionBlueprintPage from "@/pages/ExecutionBlueprintPage";
 import UserDashboardPage from "@/pages/UserDashboardPage";
 import WeeklySignalsPage from "@/pages/WeeklySignalsPage";
 import PricingPage from "@/pages/PricingPage";
-import NotFound from "./pages/NotFound";
+import NotFound from "@/pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { staleTime: 60_000, retry: 1 },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AuthProvider>
-        <BrowserRouter>
-          <AppShell>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/opportunities" element={<OpportunitiesPage />} />
-              <Route path="/opportunity/:id" element={<OpportunityDetailPage />} />
-              <Route path="/opportunity/:id/execute" element={<ExecutionBlueprintPage />} />
-              <Route path="/dashboard" element={<UserDashboardPage />} />
-              <Route path="/signals" element={<WeeklySignalsPage />} />
-              <Route path="/pricing" element={<PricingPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AppShell>
-        </BrowserRouter>
-      </AuthProvider>
+      {/* SupabaseAuthProvider for real Supabase auth (Login/Signup/Dashboard) */}
+      <SupabaseAuthProvider>
+        {/* AuthProvider for local mock auth state (OpportunityDetail/Purchase gate) */}
+        <AuthProvider>
+          <BrowserRouter>
+            <AppShell>
+              <Routes>
+                {/* ── Public ─────────────────────────────────── */}
+                <Route path="/"              element={<LandingPage />} />
+                <Route path="/auth"          element={<AuthPage />} />
+                <Route path="/login"         element={<Login />} />
+                <Route path="/signup"        element={<Signup />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password"  element={<ResetPassword />} />
+                <Route path="/pricing"       element={<PricingPage />} />
+
+                {/* ── Opportunities ───────────────────────────── */}
+                <Route path="/opportunities"              element={<OpportunitiesPage />} />
+                <Route path="/opportunity/:id"            element={<OpportunityDetailPage />} />
+                <Route path="/opportunity/:id/execute"    element={<ExecutionBlueprintPage />} />
+
+                {/* ── Authenticated ───────────────────────────── */}
+                <Route path="/dashboard"     element={<UserDashboardPage />} />
+                <Route path="/signals"       element={<WeeklySignalsPage />} />
+
+                {/* ── Fallback ────────────────────────────────── */}
+                <Route path="*"              element={<NotFound />} />
+              </Routes>
+            </AppShell>
+          </BrowserRouter>
+        </AuthProvider>
+      </SupabaseAuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
